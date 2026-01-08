@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>English Colouring</title>
+
+<style>
+body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', Arial, sans-serif;
+    background: linear-gradient(135deg, #ffecb3, #c8e6c9, #b3e5fc);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 900px;
+    width: 100%;
+    padding: 0 15px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-15px);}
+    60% {transform: translateY(-8px);}
+}
+@keyframes shake {
+    0%, 100% {transform: translateX(0);}
+    20%, 60% {transform: translateX(-5px);}
+    40%, 80% {transform: translateX(5px);}
+}
+
+.animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.fade-in { animation-name: fadeIn; }
+.bounce { animation-name: bounce; }
+.shake { animation-name: shake; }
+
+/* Главное меню */
+.menu-screen {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 600px;
+}
+.menu-screen h1 {
+    color: #d81b60;
+    font-size: 2.6em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 #ffd740;
+}
+.theme-button {
+    padding: 16px 36px;
+    margin: 12px;
+    font-size: 22px;
+    font-weight: bold;
+    background: linear-gradient(to bottom, #64b5f6, #2196f3);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #0d47a1;
+    transition: all 0.2s;
+}
+.theme-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 #0d47a1;
+}
+
+/* Игровой блок */
+.game-area {
+    display: none;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.game-layout {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.canvas-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+canvas {
+    border: 4px solid #5d4037;
+    border-radius: 12px;
+    cursor: pointer;
+   background: #fafafa;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    width: 400px;
+    height: 400px;
+}
+
+button.main {
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(to bottom, #a5d6a7, #4caf50);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #388e3c;
+    transition: all 0.2s;
+}
+button.main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #388e3c;
+}
+
+/* Боковая панель */
+.sidebar {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar h3 {
+    margin: 0;
+    color: #37474f;
+    font-size: 18px;
+    text-align: center;
+}
+
+.colors-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 8px;
+    justify-content: center;
+}
+
+.color-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid #444;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+}
+.color-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+.color-btn[title="White"] {
+    border: 3px solid #aaa;
+}
+.color-btn[title="Silver"] {
+    background: linear-gradient(135deg, #e0e0e0, #ffffff, #c0c0c0) !important;
+    box-shadow: 0 0 8px rgba(192, 192, 192, 0.6);
+}
+
+#message {
+    font-size: 19px;
+    font-weight: bold;
+    min-height: 60px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    background: #fff9c4;
+    color: #5d4037;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .game-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+    .sidebar {
+        width: 100%;
+        max-width: 300px;
+    }
+    canvas {
+        width: 360px;
+        height: 360px;
+    }
+    .colors-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+/* Фоны по темам */
+body.theme-animals {
+    background: url('background_animals.png') repeat;
+}
+body.theme-clothes {
+    background: url('background_clothes.png') repeat;
+}
+body.theme-food {
+    background: url('background_food.png') repeat;
+}
+body.theme-toys {
+    background: url('background_toys.png') repeat;
+}
+body.theme-vehicles {
+    background: url('background_vehicles.png') repeat;
+}
+
+/* Сброс фона при выходе из темы */
+body:not(.theme-animals):not(.theme-clothes):not(.theme-food):not(.theme-toys):not(.theme-vehicles) {
+    background: linear-gradient(135deg, #ffecb3, #c8e6c9, #b3e5fc);
+}
+/* Подложка под заголовком задания */
+/* Подложка под заголовком задания */
+#task {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+    max-width: 580px; /* ширина холста (400) + палитры (180) = 580 */
+    margin: 0 auto;
+}
+
+#task::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -30px;
+    right: -30px;
+    bottom: -5px;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 8px;
+    z-index: -1;
+    box-shadow: 0 5px 9px rgba(0,0,0,0.1);
+}
+#task {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 580px; /* ширина холста (400) + палитры (180) = 580 */
+}
+
+/* Подложка под кнопками и ползунком */
+.canvas-section > div:nth-child(3) { /* Это блок с кнопками и звуком */
+    position: relative;
+    z-index: 1;
+}
+.canvas-section > div:nth-child(3)::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -15px;
+    right: -15px;
+    bottom: -8px;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 12px;
+    z-index: -1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div id="menu-screen" class="menu-screen">
+    <h1>🎨 English Colouring</h1>
+    <p style="font-size: 20px; color: #5d4037;">Choose a theme:</p>
+    <button class="theme-button" onclick="startTheme('animals')">🐾 Animals</button>
+    <button class="theme-button" onclick="startTheme('clothes')">👕 Clothes</button>
+    <button class="theme-button" onclick="startTheme('food')">🍎 Food</button>
+    <button class="theme-button" onclick="startTheme('toys')">🧸 Toys</button>
+    <button class="theme-button" onclick="startTheme('vehicles')">🚗 Vehicles</button>
+  </div>
+
+  <div id="game-area" class="game-area">
+    <h2 id="task" class="fade-in" style="color: #d81b60; margin-bottom: 10px; text-align: center;">Color the CAT in ORANGE</h2>
+
+    <div class="game-layout">
+<div class="canvas-section">
+    <canvas id="canvas" width="600" height="600"></canvas>
+
+    <!-- Кнопки CHECK и MENU в одной строке -->
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button class="main" onclick="check()">CHECK</button>
+        <button class="main" onclick="backToMenu()">MENU</button>
+    </div>
+
+    <!-- Управление звуком под кнопками -->
+    <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+        <button id="mute-btn" class="main" style="padding: 8px; width: 44px;" onclick="toggleMute()">🔊</button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.6" 
+               style="width: 100px;" oninput="setVolume(this.value)">
+    </div>
+</div>
+
+      <div class="sidebar">
+        <h3>Colors</h3>
+        <div class="colors-grid">
+          <button class="color-btn" style="background:red" onclick="setColor('red')" title="Red"></button>
+          <button class="color-btn" style="background:orange" onclick="setColor('orange')" title="Orange"></button>
+          <button class="color-btn" style="background:yellow" onclick="setColor('yellow')" title="Yellow"></button>
+          <button class="color-btn" style="background:green" onclick="setColor('green')" title="Green"></button>
+          <button class="color-btn" style="background:blue" onclick="setColor('blue')" title="Blue"></button>
+          <button class="color-btn" style="background:brown" onclick="setColor('brown')" title="Brown"></button>
+          <button class="color-btn" style="background:pink" onclick="setColor('pink')" title="Pink"></button>
+          <button class="color-btn" style="background:purple" onclick="setColor('purple')" title="Purple"></button>
+          <button class="color-btn" style="background:grey" onclick="setColor('grey')" title="Grey"></button>
+          <button class="color-btn" style="background:black" onclick="setColor('black')" title="Black"></button>
+          <button class="color-btn" style="background:white" onclick="setColor('white')" title="White"></button>
+          <button class="color-btn" style="background:silver" onclick="setColor('silver')" title="Silver"></button>
+        </div>
+        <div id="message">Pick a color and click!</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// === ЗВУКИ ===
+
+const colorClickSound = new Audio('color_click.mp3');
+const successSound = new Audio('right.mp3');
+const errorSound = new Audio('wrong.mp3');
+
+// Массив всех звуков для удобного управления
+const allSounds = [colorClickSound, successSound, errorSound];
+allSounds.forEach(sound => {
+    sound.volume = 0.6; // начальная громкость
+});
+colorClickSound.volume = 0.6;
+successSound.volume = 0.6;
+errorSound.volume = 0.6;
+
+
+// === ДАННЫЕ ===
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let currentColor = "orange";
+let currentTheme = "";
+let levelIndex = 0;
+let isMuted = false;
+let starsEarned = 0;
+const themes = {
+    animals: [
+        { img: "animals_bird.png", task: "Colour the BIRD in BLUE", correct: "blue" },
+        { img: "animals_cat.png", task: "Colour the CAT in ORANGE", correct: "orange" },
+        { img: "animals_dog.png", task: "Colour the DOG in BROWN", correct: "brown" },
+        { img: "animals_fish.png", task: "Colour the FISH in SILVER", correct: "silver" },
+        { img: "animals_fox.png", task: "Colour the FOX in RED", correct: "red" },
+        { img: "animals_frog.png", task: "Colour the FROG in GREEN", correct: "green" },
+        { img: "animals_horse.png", task: "Colour the HORSE in BROWN", correct: "brown" },
+        { img: "animals_mouse.png", task: "Colour the MOUSE in GREY", correct: "grey" },
+        { img: "animals_rabbit.png", task: "Colour the RABBIT in WHITE", correct: "white" }
+    ],
+    clothes: [
+        { img: "clothes_blouse.png", task: "Colour the BLOUSE in PINK", correct: "pink" },
+        { img: "clothes_cap.png", task: "Colour the CAP in BLACK", correct: "black" },
+        { img: "clothes_dress.png", task: "Colour the DRESS in RED", correct: "red" },
+        { img: "clothes_hat.png", task: "Colour the HAT in BROWN", correct: "brown" },
+        { img: "clothes_jacket.png", task: "Colour the JACKET in BLUE", correct: "blue" },
+        { img: "clothes_shirt.png", task: "Colour the SHIRT in WHITE", correct: "white" },
+        { img: "clothes_shorts.png", task: "Colour the SHORTS in YELLOW", correct: "yellow" },
+        { img: "clothes_skirt.png", task: "Colour the SKIRT in PURPLE", correct: "purple" },
+        { img: "clothes_t_shirt.png", task: "Colour the T-SHIRT in BLUE", correct: "blue" },
+        { img: "clothes_trousers.png", task: "Colour the TROUSERS in GREY", correct: "grey" }
+    ],
+    food: [
+        { img: "food_apple.png", task: "Colour the APPLE in RED", correct: "red" },
+        { img: "food_banana.png", task: "Colour the BANANA in YELLOW", correct: "yellow" },
+        { img: "food_carrot.png", task: "Colour the CARROT in ORANGE", correct: "orange" },
+        { img: "food_cherry.png", task: "Colour the CHERRY in RED", correct: "red" },
+        { img: "food_cucumber.png", task: "Colour the CUCUMBER in GREEN", correct: "green" },
+        { img: "food_orange.png", task: "Colour the ORANGE in ORANGE", correct: "orange" },
+        { img: "food_pear.png", task: "Colour the PEAR in GREEN", correct: "green" },
+        { img: "food_tomato.png", task: "Colour the TOMATO in RED", correct: "red" }
+    ],
+    toys: [
+        { img: "toys_ball.png", task: "Colour the BALL in RED", correct: "red" },
+        { img: "toys_doll.png", task: "Colour the DOLL in PINK", correct: "pink" },
+        { img: "toys_balloon.png", task: "Colour the BALLOON in BLUE", correct: "blue" },
+		{ img: "toys_blocks.png", task: "Colour the BLACKS in YELLOW", correct: "yellow" },
+        { img: "toys_puppet.png", task: "Colour the PUPPET in PURPLE", correct: "purple" },
+        { img: "toys_robot.png", task: "Colour the ROBOT in SILVER", correct: "silver" },
+		{ img: "toys_rocking_horse.png", task: "Colour the ROCKING HORSE in BROWN", correct: "brown" },
+        { img: "toys_yo_yo.png", task: "Colour the YO-YO in BLACK", correct: "black" },
+        { img: "toys_teddy.png", task: "Colour the TEDDY BEAR in BROWN", correct: "brown" }
+    ],
+    vehicles: [
+        { img: "vehicles_car.png", task: "Colour the CAR in RED", correct: "red" },
+        { img: "vehicles_bus.png", task: "Colour the BUS in YELLOW", correct: "yellow" },
+        { img: "vehicles_plane.png", task: "Colour the PLANE in WHITE", correct: "white" },
+		{ img: "vehicles_bicycle.png", task: "Colour the BICYCLE in SILVER", correct: "silver" },
+        { img: "vehicles_lorry.png", task: "Colour the LORRY in BROWN", correct: "brown" },
+        { img: "vehicles_scooter.png", task: "Colour the SCOOTER in GREY", correct: "grey" },
+		{ img: "vehicles_ship.png", task: "Colour the SHIP in PURPLE", correct: "purple" },
+        { img: "vehicles_train.png", task: "Colour the TRAIN in GREEN", correct: "green" },
+        { img: "vehicles_tram.png", task: "Colour the TRAM in ORANGE", correct: "orange" },
+        { img: "vehicles_boat.png", task: "Colour the BOAT in BLUE", correct: "blue" }
+    ]
+};
+
+const colorMap = {
+    red: "#ff0000",
+    orange: "#ffa500",
+    yellow: "#ffff00",
+    green: "#008000",
+    blue: "#0000ff",
+    brown: "#a52a2a",
+    silver: "#e6e6e6",
+    grey: "#808080",
+    white: "#ffffff",
+    pink: "#ffc0cb",
+    black: "#000000",
+    purple: "#800080"
+};
+
+// === ФУНКЦИИ ===
+function startTheme(theme) {
+    // Звук при выборе темы
+    colorClickSound.currentTime = 0;
+    colorClickSound.play().catch(() => {});
+
+    currentTheme = theme;
+    levelIndex = 0;
+    document.getElementById("menu-screen").style.display = "none";
+    document.getElementById("game-area").style.display = "block";
+    
+    // Удаляем все старые классы фона
+    document.body.classList.remove('theme-animals', 'theme-clothes', 'theme-food', 'theme-toys', 'theme-vehicles');
+    // Добавляем новый
+    document.body.classList.add(`theme-${theme}`);
+    
+    loadLevel();
+}
+
+function backToMenu() {
+    document.getElementById("menu-screen").style.display = "block";
+    document.getElementById("game-area").style.display = "none";
+    currentTheme = "";
+    levelIndex = 0;
+	document.body.className = ""; // ← Сбрасываем фон
+}
+
+let currentImage = null;
+
+function loadLevel() {
+    if (!currentTheme || levelIndex >= themes[currentTheme].length) {
+        document.getElementById("message").textContent = "🌟 You completed this theme!";
+        return;
+    }
+
+    const level = themes[currentTheme][levelIndex];
+    const taskEl = document.getElementById("task");
+    taskEl.textContent = level.task;
+    taskEl.className = "fade-in";
+
+    document.getElementById("message").textContent = "Pick a color and click!";
+
+    const img = new Image();
+    img.src = level.img;
+
+    img.onerror = () => {
+        console.error("Image not found:", level.img);
+        currentImage = null;
+        redraw();
+    };
+
+    img.onload = () => {
+        currentImage = img;
+        redraw();
+    };
+}
+
+function setColor(color) {
+    currentColor = color;
+    redraw();
+    colorClickSound.currentTime = 0;
+    colorClickSound.play().catch(() => {});
+}
+
+function redraw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = colorMap[currentColor] || currentColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (currentImage) {
+        ctx.globalCompositeOperation = "destination-atop";
+        ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = "source-over";
+    }
+}
+
+canvas.addEventListener("click", () => {
+    if (currentImage) redraw();
+});
+
+function check() {
+    if (!currentTheme || levelIndex >= themes[currentTheme].length) return;
+    const level = themes[currentTheme][levelIndex];
+    
+    const messageEl = document.getElementById("message");
+    
+    if (currentColor === level.correct) {
+        messageEl.textContent = "Well done! 🎉";
+        messageEl.className = "bounce";
+        successSound.currentTime = 0;
+        successSound.play().catch(() => {});
+        
+        levelIndex++;
+        if (levelIndex < themes[currentTheme].length) {
+            setTimeout(loadLevel, 1200);
+        } else {
+            setTimeout(() => {
+                messageEl.textContent = "🌟 You completed this theme!";
+                messageEl.className = "";
+            }, 1200);
+        }
+    } else {
+        messageEl.textContent = "Oops… Try again 😢";
+        messageEl.className = "shake";
+        errorSound.currentTime = 0;
+        errorSound.play().catch(() => {});
+    }
+}
+function toggleMute() {
+    isMuted = !isMuted;
+    const muteBtn = document.getElementById("mute-btn");
+    
+    if (isMuted) {
+        muteBtn.textContent = "🔇";
+        allSounds.forEach(sound => sound.volume = 0);
+    } else {
+        muteBtn.textContent = "🔊";
+        const volume = document.getElementById("volume-slider").value;
+        allSounds.forEach(sound => sound.volume = volume);
+    }
+}
+
+function setVolume(value) {
+    if (!isMuted) {
+        allSounds.forEach(sound => sound.volume = parseFloat(value));
+    }
+}
+</script>
+
+</body>
+</html>
